@@ -80,18 +80,13 @@ void write(string file_name, string mode)
             vector<Bus> bus_vector = generate_struct(number_of_data);
             for (int i = 0; i < number_of_data; i++)
             {
-                string model = bus_vector[i].model;
-                double lenght = bus_vector[i].lenght;
-                double height = bus_vector[i].height;
-                int max_passengers = bus_vector[i].max_passengers;
-                int avg_passengers = bus_vector[i].avg_passengers;
-                stringstream ss;
-                ss << model << ";" << lenght << ";" << height << ";" << max_passengers << ";" << avg_passengers << ";";
-                string data = ss.str();
-                char buffer[101];
-                strncpy_s(buffer, data.c_str(), 100);
-                buffer[100] = '\0';
-                outFile.write(buffer, sizeof(buffer));
+                size_t model_length = bus_vector[i].model.size();
+                outFile.write(reinterpret_cast<const char*>(&model_length), sizeof(model_length));
+                outFile.write(bus_vector[i].model.c_str(), model_length);
+                outFile.write(reinterpret_cast<const char*>(&bus_vector[i].lenght), sizeof(bus_vector[i].lenght));
+                outFile.write(reinterpret_cast<const char*>(&bus_vector[i].height), sizeof(bus_vector[i].height));
+                outFile.write(reinterpret_cast<const char*>(&bus_vector[i].max_passengers), sizeof(bus_vector[i].max_passengers));
+                outFile.write(reinterpret_cast<const char*>(&bus_vector[i].avg_passengers), sizeof(bus_vector[i].avg_passengers));
             }
             outFile.close();
             cout << "Успешно записано " << number_of_data << " строк" << endl;
@@ -162,50 +157,30 @@ vector<Bus> read(string file_name, string mode)
     if (mode == "binary")
     {
         ifstream inFile(file_name, ios::binary);
-        if (inFile) {
-            char buffer[101];
-            while (inFile.read(buffer, sizeof(buffer))) {
-                string str(buffer);
+        if (inFile)
+        {
+            while (true)
+            {
                 Bus currentBus;
-                string currentLine;
-                stringstream ss(str);
-                int counter = 0;
-                while (getline(ss, currentLine, ';'))
-                {
-                    try
-                    {
-                        if (counter == 0) { currentBus.model = currentLine; }
-                        else if (counter == 1)
-                        {
-                            stringstream ss2(currentLine);
-                            double value;
-                            ss2 >> value;
-                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
-                            currentBus.lenght = value;
-                        }
-                        else if (counter == 2)
-                        {
-                            stringstream ss2(currentLine);
-                            double value;
-                            ss2 >> value;
-                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
-                            currentBus.height = value;
-                        }
-                        else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
-                        else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
-                    }
-                    catch (...)
-                    {
-                        cout << "Некорректные данные в файле!" << endl;
-                        exit(1);
-                    }
-                    counter++;
-                }
+
+                size_t model_length;
+                inFile.read(reinterpret_cast<char*>(&model_length), sizeof(model_length));
+                if (inFile.eof()) break;
+                char* model_buffer = new char[model_length + 1];
+                inFile.read(model_buffer, model_length);
+                model_buffer[model_length] = '\0';
+                currentBus.model = string(model_buffer);
+                delete[] model_buffer;
+                inFile.read(reinterpret_cast<char*>(&currentBus.lenght), sizeof(currentBus.lenght));
+                inFile.read(reinterpret_cast<char*>(&currentBus.height), sizeof(currentBus.height));
+                inFile.read(reinterpret_cast<char*>(&currentBus.max_passengers), sizeof(currentBus.max_passengers));
+                inFile.read(reinterpret_cast<char*>(&currentBus.avg_passengers), sizeof(currentBus.avg_passengers));
                 result.push_back(currentBus);
             }
             inFile.close();
         }
-        else {
+        else
+        {
             cout << "Ошибка чтения файла" << endl;
             exit(1);
         }
