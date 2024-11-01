@@ -1,56 +1,36 @@
 #include <iostream>
-#include <fstream>
-#include <ctime>
-#include <map>
-#include <vector>
-#include <cmath>
+#include <locale>
+#include "Functions.h"
 
 using namespace std;
 
-struct Bus
+int main(int argc, char* argv[])
 {
-	string model;
-	double lenght;
-	double height;
-	int max_passengers;
-	int avg_passengers;
-};
-
-
-
-vector<Bus> generate_struct(int number_of_struct)
-{
-	vector<Bus> result;
-	srand(time(0));
-	map<int, string> busMap =
-	{
-		{0, "ЛиАЗ-677"}, {1, "ПАЗ-3205"}, {2, "КАВЗ-685"}, {3, "Икарус-250"},
-		{4, "РАФ-2203"}, {5, "ГАЗ-03-30"}, {6, "ЗиС-155"}, {7, "ЗиЛ-158"},
-		{8, "КАвЗ-3270"}, {9, "МАЗ-103"}, {10, "НефАЗ-5299"}, {11, "Икарус-280"},
-		{12, "ПАЗ-672"}, {13, "ЛАЗ-695"}, {14, "МАРЗ-5266"}, {15, "ЗиС-154"},
-		{16, "ЛиАЗ-5256"}, {17, "ЛАЗ-699Р"}, {18, "ПАЗ-4234"}, {19, "ЛАЗ-4202"},
-		{20, "ПАЗ-652"}, {21, "ЗиЛ-127"}, {22, "ЛиАЗ-5292"}, {23, "ГАЗель Next"},
-		{24, "ЮМЗ-Т1"}, {25, "Таджикистан-3200"}, {26, "ПАЗ-672М"}, {27, "УралАЗ-512"},
-		{28, "Икарус-260"}, {29, "ГАЗ-66"}
-	};
-	for (int i = 0; i < number_of_struct; i++)
-	{
-		Bus bus_vector;
-		bus_vector.model = busMap[rand() % 30];
-		bus_vector.lenght = round((3.0f + static_cast<float>(rand()) / (RAND_MAX / 12.0f)) * 100.0f) / 100.0f;
-		bus_vector.height = round((2.0f + static_cast<float>(rand()) / (RAND_MAX / 6.0f)) * 100.0f) / 100.0f;
-		bus_vector.max_passengers = 20 + rand() % 121;
-		bus_vector.avg_passengers = bus_vector.max_passengers - ((rand() % bus_vector.max_passengers) / 2);
-		result.push_back(bus_vector);
-	}
-	return result;
-
-}
-int main(int argc, char *argv[])
-{
-	setlocale(LC_ALL, "Russian");
-	string mode = argv[1];
-	string file_type = argv[2];
-	string file_name = argv[3];
-	return 0;
+    setlocale(LC_ALL, "Russian");
+    string file_name = argv[2];
+    string mode = argv[1];
+    string type = argv[3];
+    if (mode == "write")
+    {
+        write(file_name, type);
+    }
+    else if (mode == "read")
+    {
+        cout << "------------------------------------------" << endl;
+        vector<Bus> result;
+        result = read(file_name, type);
+        for (int i = 0; i < result.size(); i++)
+        {
+            cout << "Модель: " << result[i].model << endl;
+            cout << "Длина: " << result[i].lenght << endl;
+            cout << "Высота: " << result[i].height << endl;
+            cout << "Максимальное число пассажиров: " << result[i].max_passengers << endl;
+            cout << "Среднее число пассажиров: " << result[i].avg_passengers << endl;
+            cout << "------------------------------------------" << endl;
+        }
+    }
+    else if (mode == "clear")
+    {
+        clear(file_name, type);
+    }
 }
