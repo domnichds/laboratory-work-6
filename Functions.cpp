@@ -153,6 +153,11 @@ vector<Bus> read(string file_name, string mode)
             }
             inFile.close();
         }
+        else
+        {
+            cout << "Ошибка чтения файла" << endl;
+            exit(1);
+        }
     }
     if (mode == "binary")
     {
@@ -201,7 +206,7 @@ vector<Bus> read(string file_name, string mode)
             inFile.close();
         }
         else {
-            cout << "Ошибка при открытии файла для чтения." << endl;
+            cout << "Ошибка чтения файла" << endl;
             exit(1);
         }
     }

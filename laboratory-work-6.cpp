@@ -8,8 +8,8 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "Russian");
     string mode = argv[1];
-    string file_name = argv[2];
-    string type = argv[3];
+    string file_name = argv[3];
+    string type = argv[2];
     if (mode == "write")
     {
         write(file_name, type);
