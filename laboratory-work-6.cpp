@@ -7,8 +7,8 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "Russian");
-    string file_name = argv[2];
     string mode = argv[1];
+    string file_name = argv[2];
     string type = argv[3];
     if (mode == "write")
     {

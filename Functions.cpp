@@ -38,7 +38,7 @@ vector<Bus> generate_struct(int number_of_struct)
     return result;
 }
 
-int write(string file_name, string mode)
+void write(string file_name, string mode)
 {
     if (mode == "text")
     {
@@ -62,10 +62,11 @@ int write(string file_name, string mode)
                 outFile << data << endl;
             }
             outFile.close();
+            cout << "Успешно записано " << number_of_data << " строк" << endl;
         }
         else
         {
-            return 0;
+            cout << "Произошла ошибка записи!" << endl;
         }
     }
     if (mode == "binary")
@@ -93,10 +94,11 @@ int write(string file_name, string mode)
                 outFile.write(buffer, sizeof(buffer));
             }
             outFile.close();
+            cout << "Успешно записано " << number_of_data << " строк" << endl;
         }
         else
         {
-            return 0;
+            cout << "Произошла ошибка записи!" << endl;
         }
     }
 }
@@ -108,34 +110,48 @@ vector<Bus> read(string file_name, string mode)
     {
         string line;
         ifstream inFile(file_name);
-        while (getline(inFile, line))
+        if (inFile)
         {
-            Bus currentBus;
-            string currentLine;
-            stringstream ss(line);
-            int counter = 0;
-            while (getline(ss, currentLine, ';'))
+            while (getline(inFile, line))
             {
-                if (counter == 0) { currentBus.model = currentLine; }
-                else if (counter == 1)
+                Bus currentBus;
+                string currentLine;
+                stringstream ss(line);
+                int counter = 0;
+                while (getline(ss, currentLine, ';'))
                 {
-                    stringstream ss2(currentLine);
-                    double value;
-                    ss2 >> value;
-                    currentBus.lenght = value;
+                    try
+                    {
+                        if (counter == 0) { currentBus.model = currentLine; }
+                        else if (counter == 1)
+                        {
+                            stringstream ss2(currentLine);
+                            double value;
+                            ss2 >> value;
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            currentBus.lenght = value;
+                        }
+                        else if (counter == 2)
+                        {
+                            stringstream ss2(currentLine);
+                            double value;
+                            ss2 >> value;
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            currentBus.height = value;
+                        }
+                        else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
+                        else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
+                    }
+                    catch (...)
+                    {
+                        cout << "Некорректные данные в файле!" << endl;
+                        exit(1);
+                    }
+                    counter++;
                 }
-                else if (counter == 2)
-                {
-                    stringstream ss2(currentLine);
-                    double value;
-                    ss2 >> value;
-                    currentBus.height = value;
-                }
-                else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
-                else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
-                counter++;
+                result.push_back(currentBus);
             }
-            result.push_back(currentBus);
+            inFile.close();
         }
     }
     if (mode == "binary")
@@ -151,23 +167,33 @@ vector<Bus> read(string file_name, string mode)
                 int counter = 0;
                 while (getline(ss, currentLine, ';'))
                 {
-                    if (counter == 0) { currentBus.model = currentLine; }
-                    else if (counter == 1)
+                    try
                     {
-                        stringstream ss2(currentLine);
-                        double value;
-                        ss2 >> value;
-                        currentBus.lenght = value;
+                        if (counter == 0) { currentBus.model = currentLine; }
+                        else if (counter == 1)
+                        {
+                            stringstream ss2(currentLine);
+                            double value;
+                            ss2 >> value;
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            currentBus.lenght = value;
+                        }
+                        else if (counter == 2)
+                        {
+                            stringstream ss2(currentLine);
+                            double value;
+                            ss2 >> value;
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            currentBus.height = value;
+                        }
+                        else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
+                        else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
                     }
-                    else if (counter == 2)
+                    catch (...)
                     {
-                        stringstream ss2(currentLine);
-                        double value;
-                        ss2 >> value;
-                        currentBus.height = value;
+                        cout << "Некорректные данные в файле!" << endl;
+                        exit(1);
                     }
-                    else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
-                    else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
                     counter++;
                 }
                 result.push_back(currentBus);
@@ -176,6 +202,7 @@ vector<Bus> read(string file_name, string mode)
         }
         else {
             cout << "Ошибка при открытии файла для чтения." << endl;
+            exit(1);
         }
     }
     return result;

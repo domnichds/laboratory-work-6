@@ -8,7 +8,7 @@
 using namespace std;
 
 vector<Bus> generate_struct(int number_of_struct);
-int write(string file_name, string mode);
+void write(string file_name, string mode);
 vector<Bus> read(string file_name, string mode);
 void clear(string file_name, string mode);
 
