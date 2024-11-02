@@ -123,7 +123,7 @@ vector<Bus> read(string file_name, string mode)
                             stringstream ss2(currentLine);
                             double value;
                             ss2 >> value;
-                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение длины!"); }
                             currentBus.lenght = value;
                         }
                         else if (counter == 2)
@@ -131,16 +131,21 @@ vector<Bus> read(string file_name, string mode)
                             stringstream ss2(currentLine);
                             double value;
                             ss2 >> value;
-                            if (ss2.fail()) { throw invalid_argument("Некорректное значение в double"); }
+                            if (ss2.fail()) { throw invalid_argument("Некорректное значение ширины!"); }
                             currentBus.height = value;
                         }
                         else if (counter == 3) { currentBus.max_passengers = stoi(currentLine); }
                         else if (counter == 4) { currentBus.avg_passengers = stoi(currentLine); }
                     }
+                    catch (const invalid_argument& error)
+                    {
+                        cout << "Ошибка чтения данных: " << error.what() << endl;
+                        break;
+                    }
                     catch (...)
                     {
                         cout << "Некорректные данные в файле!" << endl;
-                        exit(1);
+                        break;
                     }
                     counter++;
                 }
@@ -166,16 +171,41 @@ vector<Bus> read(string file_name, string mode)
                 size_t model_length;
                 inFile.read(reinterpret_cast<char*>(&model_length), sizeof(model_length));
                 if (inFile.eof()) break;
+                if (inFile.fail())
+                {
+                    cout << "Ошибка чтения размера имени модели." << endl;
+                    break;
+                }
                 char* model_buffer = new char[model_length + 1];
                 inFile.read(model_buffer, model_length);
+                if (inFile.fail())
+                {
+                    delete[] model_buffer;
+                    cout << "Ошибка чтения имени модели!" << endl;
+                    break;
+                }
                 model_buffer[model_length] = '\0';
                 currentBus.model = string(model_buffer);
-                delete[] model_buffer;
-                inFile.read(reinterpret_cast<char*>(&currentBus.lenght), sizeof(currentBus.lenght));
-                inFile.read(reinterpret_cast<char*>(&currentBus.height), sizeof(currentBus.height));
-                inFile.read(reinterpret_cast<char*>(&currentBus.max_passengers), sizeof(currentBus.max_passengers));
-                inFile.read(reinterpret_cast<char*>(&currentBus.avg_passengers), sizeof(currentBus.avg_passengers));
-                result.push_back(currentBus);
+                try
+                {
+                    model_buffer[model_length] = '\0';
+                    currentBus.model = string(model_buffer);
+                    delete[] model_buffer;
+                    inFile.read(reinterpret_cast<char*>(&currentBus.lenght), sizeof(currentBus.lenght));
+                    if (inFile.fail()) { throw invalid_argument("Некорректное значение длины!"); }
+                    inFile.read(reinterpret_cast<char*>(&currentBus.height), sizeof(currentBus.height));
+                    if (inFile.fail()) { throw invalid_argument("Некорректное значение высоты!"); }
+                    inFile.read(reinterpret_cast<char*>(&currentBus.max_passengers), sizeof(currentBus.max_passengers));
+                    if (inFile.fail()) { throw invalid_argument("Некорректное значение максимального числа пассажиров!"); }
+                    inFile.read(reinterpret_cast<char*>(&currentBus.avg_passengers), sizeof(currentBus.avg_passengers));
+                    if (inFile.fail()) { throw invalid_argument("Некорректное значение среднего числа пассажиров!"); }
+                    result.push_back(currentBus);
+                }
+                catch (const invalid_argument& error)
+                {
+                    cout << "Ошибка чтения данных: " << error.what() << endl;
+                    break;
+                }
             }
             inFile.close();
         }
