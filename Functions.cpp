@@ -140,12 +140,7 @@ vector<Bus> read(string file_name, string mode)
                     catch (const invalid_argument& error)
                     {
                         cout << "Ошибка чтения данных: " << error.what() << endl;
-                        break;
-                    }
-                    catch (...)
-                    {
-                        cout << "Некорректные данные в файле!" << endl;
-                        break;
+                        exit(1);
                     }
                     counter++;
                 }
@@ -174,7 +169,7 @@ vector<Bus> read(string file_name, string mode)
                 if (inFile.fail())
                 {
                     cout << "Ошибка чтения размера имени модели." << endl;
-                    break;
+                    exit(1);
                 }
                 char* model_buffer = new char[model_length + 1];
                 inFile.read(model_buffer, model_length);
@@ -182,7 +177,7 @@ vector<Bus> read(string file_name, string mode)
                 {
                     delete[] model_buffer;
                     cout << "Ошибка чтения имени модели!" << endl;
-                    break;
+                    exit(1);
                 }
                 model_buffer[model_length] = '\0';
                 currentBus.model = string(model_buffer);
@@ -204,7 +199,7 @@ vector<Bus> read(string file_name, string mode)
                 catch (const invalid_argument& error)
                 {
                     cout << "Ошибка чтения данных: " << error.what() << endl;
-                    break;
+                    exit(1);
                 }
             }
             inFile.close();
